@@ -7,6 +7,6 @@ RUN python -c 'from moviepy.editor import VideoFileClip'
 RUN pip install img2pdf
 
 WORKDIR /data
-COPY vid2pdf.py ./
+COPY video2pdf.py ./
 
-ENTRYPOINT [ "python", "./vid2pdf.py"]
+ENTRYPOINT [ "python", "./video2pdf.py"]
