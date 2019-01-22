@@ -1,7 +1,7 @@
 # video2pdf
 Convert video slides/presentations to PDF
 
-I had some Udemy videos with presentations in video form only, no PPTs given. Pieced this together to make a presentation slides from those videos.
+I had some Udemy videos with presentations in video form only, no PPTs given. Pieced this together to make a presentation slides from those videos. Uses moviepy to detect scenes and create images, then img2pdf is used to generate PDF.
 
 ## Install required packages
 
