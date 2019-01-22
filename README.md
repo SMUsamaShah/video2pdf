@@ -17,7 +17,15 @@ pip install img2pdf
 python video2pdf.py -f "d:/data/udemy/lecture1.mp4"
 ```
 
-# Using Docker
+## Using Docker
+
+Pull image from docker hub
+
+```
+docker pull smusamashah/video2pdf
+```
+
+Mount a directory and convert the file
 
 ```bash
 docker run --rm -it -v d:/data:/d/ video2pdf -f "/d/udemy/Cloud Guru/lecture1.mp4"
