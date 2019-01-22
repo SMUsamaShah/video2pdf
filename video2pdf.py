@@ -22,14 +22,14 @@ def video2images(fullname, imageformat="png"):
     scenes = mpc.detect_scenes(video_small)
 
     i = 0
-    for t, lum in scenes[0]:
-        if t < 3 or lum - t < 0.5: # skip first 3 seconds and ignore small changes
+    for t1, t2 in scenes[0]:
+        if t1 < 3 or t2 - t1 < 0.5: # skip first 3 seconds and ignore small changes
             continue
         
         img = os.path.join(imagesdir, "{:0>3d}.jpg".format(i)) 
         print(img)
 
-        video.save_frame(img, t)  # save frame as JPEG
+        video.save_frame(img, t1)  # save frame as JPEG
         i += 1
 
     # list of full path of each image
@@ -39,7 +39,7 @@ def video2images(fullname, imageformat="png"):
 def images2pdf(images, pdfpath):
     ''' Make PDf file from list of given images '''
 
-    assert images > 0
+    assert len(images) > 0
     
     print(images)
 
@@ -55,7 +55,7 @@ def images2pdf(images, pdfpath):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filepath", help="full path of video file", type=str, required=True)
-    parser.add_argument("-t", "--type", help="png or jpg?", type=str, const="jpg", nargs='?')
+    parser.add_argument("-t", "--type", help="png or jpg?", type=str, const="jpg", default="jpg", nargs='?')
     parser.add_argument("-o", "--output", help="output pdf", type=str)
     parser.parse_args()
 
@@ -79,5 +79,3 @@ if __name__ == "__main__":
     #     exc_type, exc_obj, exc_tb = sys.exc_info()
     #     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
     #     print(e, exc_type, fname, exc_tb.tb_lineno)
-
-
