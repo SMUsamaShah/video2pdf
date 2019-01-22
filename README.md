@@ -19,6 +19,10 @@ python video2pdf.py -f "d:/data/udemy/lecture1.mp4"
 
 # Using Docker
 
+```bash
+docker run --rm -it -v d:/data:/d/ video2pdf -f "/d/udemy/Cloud Guru/lecture1.mp4"
+```
+
 Bulk example
 
 ```python
@@ -26,5 +30,5 @@ videodir = "D:/Udemy/Cloud Guru/"
 file_filter = lambda p: p.endswith(".mp4") and p.find('Lab') == -1 # mp4 videos which do not contain the word 'Lab'
 
 for f in list(filter(file_filter, os.listdir(videodir))):
-    os.system('start docker run --rm -it -v d:/data:/d/ video2deck -f \"/d/udemy/Cloud Guru/'+f+'"')
+    os.system('start docker run --rm -it -v d:/data:/d/ video2pdf -f \"/d/udemy/Cloud Guru/'+f+'"')
 ```
