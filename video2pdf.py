@@ -8,17 +8,12 @@ import shutil
 import moviepy.editor as mpe
 import moviepy.video.tools.cuts as mpc
 
-def video2images(fullname, imageformat="png"):
+def video2images(filepath, imagesdir, imageformat):
     ''' Return a list of images from a given video '''
-    filename_noext = os.path.basename(fullname).rsplit(".", 1)[0]
-    imagesdir = os.path.join(tempfile.gettempdir(), filename_noext + str(random.randint(0, 9999)))
 
-    if os.path.exists(imagesdir) == False:
-        os.mkdir(imagesdir)
-    print("Images will be save to ", imagesdir)
-
-    video = mpe.VideoFileClip(fullname)
-    video_small = video.resize(width=150)
+    video = mpe.VideoFileClip(filepath)
+    video_small = video
+    # video_small = video.resize(width=150)
     scenes = mpc.detect_scenes(video_small)
 
     i = 0
@@ -26,56 +21,40 @@ def video2images(fullname, imageformat="png"):
         if t1 < 3 or t2 - t1 < 0.5: # skip first 3 seconds and ignore small changes
             continue
         
-        img = os.path.join(imagesdir, "{:0>3d}.jpg".format(i)) 
+        img = os.path.join(imagesdir, "{}.{}".format(i, imageformat)) 
         print(img)
 
         video.save_frame(img, t1)  # save frame as JPEG
         i += 1
 
-    # list of full path of each image
-    return [os.path.join(imagesdir, i) for i in sorted(os.listdir(imagesdir)) if i.endswith("."+imageformat)]
+    return i
 
 
-def images2pdf(images, pdfpath):
-    ''' Make PDf file from list of given images '''
-
-    assert len(images) > 0
-    
-    print(images)
-
-    try:
-        with open(pdfpath, "wb") as f:            
-            f.write(img2pdf.convert(images))
-            return pdfpath
-
-    except Exception as e:
-        print("File Error: ", e)
-        return None
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--filepath", help="full path of video file", type=str, required=True)
-    parser.add_argument("-t", "--type", help="png or jpg?", type=str, const="jpg", default="jpg", nargs='?')
-    parser.add_argument("-o", "--output", help="output pdf", type=str)
-    parser.parse_args()
-
+    parser.add_argument("filepath", help="full path of video file")
+    parser.add_argument("-t", "--type", help="png or jpg?", default="jpg", choices=['jpg', 'png'])
+    parser.add_argument("-o", "--output", help="output pdf")
+    parser.add_argument("-d", "--delete", help="remove images", action='store_true')
+    
     args = parser.parse_args()
     args.filepath = args.filepath.replace('\\', os.sep)
 
-    # by default, pdf will be created on the same path as input with the same name
-    if args.output == None:
-        args.output = os.path.abspath(args.filepath)+".pdf"
+    base_name = os.path.splittext(os.path.basename(args.filepath))[0]
 
-    images = video2images(args.filepath, args.type)
-    print("Saving PDF as " + args.output)
-    pdf = images2pdf(images, args.output)
-    print("PDF saved at " + pdf)
+    pdf_path = base_name + ".pdf" if args.output is None else args.output
 
-    # cleanup
-    # for i in images:
-    #     os.remove(i)
+    img_dir = tempfile.mkdtemp()
+    print("Images will be saved in " + img_dir)
+    img_count = video2images(args.filepath ,img_dir, args.type)
 
-    # except Exception as e:
-    #     exc_type, exc_obj, exc_tb = sys.exc_info()
-    #     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    #     print(e, exc_type, fname, exc_tb.tb_lineno)
+    print("Saving PDF as " + pdf_path)
+
+    with open(pdf_path, "wb") as f:            
+        f.write(img2pdf.convert([os.path.join(img_dir, '{}.{}'.format(i, args.type)) for i in range(0,img_count)]))
+
+    print("PDF saved at " + pdf_path)
+
+    if args.delete:
+        shutil.rmtree(img_dir)
