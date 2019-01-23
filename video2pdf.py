@@ -10,14 +10,14 @@ import moviepy.video.tools.cuts as mpc
 import moviepy.video.fx.all
 
 
-def video2images(filepath, imagesdir, imageformat, x1=None, y1=None, x2=None, y2=None, width=None, height=None):
+def video2images(filepath, imagesdir, imageformat, threshold=10, x1=None, y1=None, x2=None, y2=None, width=None, height=None):
     ''' Return a list of images from a given video '''
 
     video = mpe.VideoFileClip(filepath)
     if x1 is not None or y1 is not None:
         video = video.crop(x1, y1, x2, y2, width, height)
-    video_small = video.resize(width=150)
-    scenes = mpc.detect_scenes(video_small)
+    video_small = video.resize(width=150) # resize for better performance
+    scenes = mpc.detect_scenes(video_small, thr=threshold)
 
     i = 0
     for t1, t2 in scenes[0]:
@@ -39,6 +39,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--type", help="png or jpg?", default="jpg", choices=['jpg', 'png'])
     parser.add_argument("-o", "--output", help="output pdf")
     parser.add_argument("-d", "--delete", help="remove images", action='store_true')
+    parser.add_argument("-s", "--threshold", help="scene detection threshold, default=5", default=5)
 
     cgargs = parser.add_argument_group('crop')
     cgargs.add_argument("-x1", type=int, help='top left corner x value')
@@ -61,7 +62,7 @@ if __name__ == "__main__":
 
     img_dir = tempfile.mkdtemp()
     print("Images will be saved in " + img_dir)
-    img_count = video2images(args.filepath, img_dir, args.type, x1=args.x1, y1=args.y1, x2=args.x2, y2=args.y2, width=args.W, height=args.H)
+    img_count = video2images(args.filepath, img_dir, args.type, args.threshold, x1=args.x1, y1=args.y1, x2=args.x2, y2=args.y2, width=args.W, height=args.H)
 
     print("Saving PDF as " + pdf_path)
 

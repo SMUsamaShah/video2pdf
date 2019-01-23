@@ -30,6 +30,8 @@ optional arguments:
   -o OUTPUT, --output OUTPUT
                         output pdf
   -d, --delete          remove images
+  -s THRESHOLD, --threshold THRESHOLD
+                        scene detection threshold, default=5
 
 crop:
   -x1 X1                top left corner x value
