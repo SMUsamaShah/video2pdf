@@ -19,18 +19,35 @@ def video2images(filepath, imagesdir, imageformat, threshold=10, x1=None, y1=Non
     video_small = video.resize(width=150) # resize for better performance
     scenes = mpc.detect_scenes(video_small, thr=threshold)
 
+    img_list = []
     i = 0
     for t1, t2 in scenes[0]:
         if t1 < 3 or t2 - t1 < 0.5:  # skip first 3 seconds and ignore small changes
             continue
 
         img = os.path.join(imagesdir, "{}.{}".format(i, imageformat))
+        img_list.append(img)
         print(img)
 
         video.save_frame(img, t1)  # save frame as JPEG
         i += 1
 
-    return i
+    return img_list
+
+def images2pdf(images, pdfpath):
+    ''' Make PDf file from list of given images '''
+
+    assert len(images) > 0, "No images to convert"
+    # print(images)
+
+    try:
+        with open(pdfpath, "wb") as f:            
+            f.write(img2pdf.convert(images))
+            return pdfpath
+
+    except Exception as e:
+        print("File Error: ", e)
+        return None
 
 
 if __name__ == "__main__":
@@ -62,14 +79,11 @@ if __name__ == "__main__":
 
     img_dir = tempfile.mkdtemp()
     print("Images will be saved in " + img_dir)
-    img_count = video2images(args.filepath, img_dir, args.type, args.threshold, x1=args.x1, y1=args.y1, x2=args.x2, y2=args.y2, width=args.W, height=args.H)
+    
+    images = video2images(args.filepath, img_dir, args.type, args.threshold, x1=args.x1, y1=args.y1, x2=args.x2, y2=args.y2, width=args.W, height=args.H)
 
     print("Saving PDF as " + pdf_path)
-
-    with open(pdf_path, "wb") as f:
-        f.write(img2pdf.convert([os.path.join(img_dir, '{}.{}'.format(
-            i, args.type)) for i in range(0, img_count)]))
-
+    pdf = images2pdf(images, pdf_path)
     print("PDF saved at " + pdf_path)
 
     if args.delete:
